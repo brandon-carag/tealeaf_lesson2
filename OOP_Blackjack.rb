@@ -1,3 +1,6 @@
+require "rubygems"
+require "pry"
+
 # Tips for OOP Blackjack
 # 1. Have detailed requirements or specifications in writing
 # 2. Extract major nouns > probably will map to classes--Player, card, deck, dealer
@@ -13,17 +16,27 @@
 #Priority # 1 When you look at Rails code, understand that it's Ruby powering the Rails magic.
 #Keep in mind--you don't vf
 
+module CardFunctionality
+  attr_accessor :get_card
+
+def get_card(card)
+    player_cards << card 
+    # My original code; @player_cards << Deck.deal_card
+  end
+
+end 
+
+
 class Player
+  include CardFunctionality
+  attr_accessor :player_cards,:get_card
   def initialize(player,bank)
     @player_name=player
     @bank=bank
     @player_cards=[]
   end
-
-  def get_card(c)
-    @player_cards.push(c)
-  end
 end
+
 
 class Card
   attr_reader :suit,:kind
@@ -38,6 +51,10 @@ class Card
     puts "The card is #{kind} of #{suit}"
   end
 
+  def to_s 
+    pretty_output
+  end
+
   def find_suit
     case suit
       when'H' then "Hearts"
@@ -50,53 +67,44 @@ end
 
 
 class Deck
-  attr_accessor :full_deck
+  attr_accessor :full_deck,:deal_card,:shuf
   def initialize
     #Initialize with a full set of cards
     #This means initializing the instance variable @ deck
     #with a full set of cards
+
+    #ANOTHER SET OF WORKING CODE
+    suits=["C","D","H","S"]
+    kinds=["2","3","4","5","6","7","8","9","10","J","Q","K","A"]
     @full_deck=[]
-    # suits=["C","D","H","S"]
-    # kinds=["2","3","4","5","6","7","8","9","10","J","K","Q","K","A"]
-    
-    ["C","D","H","S"].each do |suit|
-      ["2","3","4","5","6","7","8","9","10","J","K","Q","K","A"].each do |face_value|
-        @full_deck << Card.new(suit,face_value)
-      end
+    suits.each do |suit| kinds.each do |kind| @full_deck << Card.new(suit,kind)
     end
-
-    # suits.each do |suit|
-    #   kinds. each do |face_value|
-    #     @full_deck << Card.new(suit,face_value)
-    #   end
-    # end
-
-    
-
-    @full_deck=suits.each {|suit| kinds.each {|kind| Card.new(suit,kind)  } }
+    end
+  
   end
 
-  def shuffle
-    @deck.shuffle
+  def shuf
+    @full_deck.shuffle!
   end
 
   def deal_card
-    @deck.pop
+    @full_deck.pop
   end
 end
 
 test_deck=Deck.new
-puts test_deck.full_deck
+#binding.pry
+# puts test_deck.full_deck
 
 
-# class Gameplay
-#   def initialize
-#     @gamedeck=Deck.new
-#     @player1=Player.new("Brandon",500)
-#     @dealer=Player.new("Jonny Dealer","1000000")
-#     @current_player=@human
-#     @bet=0
-#   end
+class Gameplay
+  attr_accessor :gamedeck,:player1,:dealer,:bet
+  def initialize
+    @gamedeck=Deck.new
+    @player1=Player.new("Brandon",500)
+    @dealer=Player.new("Jonny Dealer","1000000")
+    @bet=0
+  end
 
 #   def hand_total_bust_check
 #     #placeholder
@@ -107,16 +115,16 @@ puts test_deck.full_deck
 #     hand_total=
 #   end
 
-  
 
-#   end
-
-#   def play
-#     puts "Welcome to the Blackjack Table.  How much would you like to bet?"
-#     @bet=gets.chomp
-#     @gamedeck.shuffle
-#     #First Stage--Both Players get cards
-#     @player1.get_card
+  def play
+    puts "Welcome to the Blackjack Table."
+    puts "How much would you like to bet?"
+    @bet=gets.chomp
+    gamedeck.shuf
+    #First Stage--Both Players get cards
+    player1.get_card(gamedeck.deal_card)
+    puts player1.player_cards
+    
 #     @dealer.get_card
 #     @player1.get_card
 #     @dealer.get_card
@@ -147,9 +155,10 @@ puts test_deck.full_deck
 #     #Third Stage--Dealer draws till win or bust
 #   end
 #   exit
-# end
+  end
+end
 
-# Gameplay.new.play
+Gameplay.new.play
 
 #_______________________________________________________________________________________
 # class Card #What is a real life card?
