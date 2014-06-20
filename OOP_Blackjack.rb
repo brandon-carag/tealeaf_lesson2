@@ -1,38 +1,63 @@
 require "rubygems"
 require "pry"
 
-# Tips for OOP Blackjack
-# 1. Have detailed requirements or specifications in writing
-# 2. Extract major nouns > probably will map to classes--Player, card, deck, dealer
-# 3. Extract major verbs > probably will map to instance methods
-# 4. Group instance methods into classes
-# 5. class variables and methods
-# 6. compare with procedural
-
-#Benefits of OOP
-#1 Abstraction: 
-#2 Encapsulation: It encapsulates certain behaviors 
-
-#Priority # 1 When you look at Rails code, understand that it's Ruby powering the Rails magic.
-#Keep in mind--you don't vf
-
-module CardFunctionality
-  attr_accessor :get_card
-
-def get_card(card)
+module Carding
+  def get_card(card)
     player_cards << card 
-    # My original code; @player_cards << Deck.deal_card
+    # My original code; @player_cards << Deck.deal_card.  Why doesn't this work?
   end
 
-end 
+  def bust?(hand)
+    if hand.hand_total>21
+      true
+    else
+      false
+    end
+  end
+
+  def get_total(cards_array)
+    #sample card arr=[["H","3"],["C","Q"]]
+    hand_total=0
+    #Draw out second elements in the nested array
+    cards_array.collect! {|ind|ind[1]}
+    #Perform ace count
+    ace_count=cards_array.select{|a|a=="A"}.size
+    #Iterate through cards
+    cards_array.each do |x|
+      if x=="J"|| x=="Q"||x=="K"
+        hand_total+=10
+      elsif x=="A"
+        hand_total+=11
+      else 
+        hand_total+=x.to_i
+      end
+    end
+
+    #Lastly, Ace Handling Logic
+    if hand_total>21 &&ace_count>=1
+      hand_total-=ace_count*10
+    end
+    hand_total
+    end
+end
 
 
 class Player
-  include CardFunctionality
-  attr_accessor :player_cards,:get_card
+  include Carding
+  attr_accessor :player_cards
   def initialize(player,bank)
     @player_name=player
     @bank=bank
+    @player_cards=[]
+  end
+end
+
+class Dealer
+  include Carding
+  attr_accessor :player_cards
+  def initialize(bank)
+    @name="Dealer"
+    @bank=1000000
     @player_cards=[]
   end
 end
@@ -67,7 +92,7 @@ end
 
 
 class Deck
-  attr_accessor :full_deck,:deal_card,:shuf
+  attr_accessor :full_deck
   def initialize
     #Initialize with a full set of cards
     #This means initializing the instance variable @ deck
@@ -102,9 +127,10 @@ class Gameplay
   def initialize
     @gamedeck=Deck.new
     @player1=Player.new("Brandon",500)
-    @dealer=Player.new("Jonny Dealer","1000000")
+    @dealer=Dealer.new("1000000")
     @bet=0
   end
+
 
 #   def hand_total_bust_check
 #     #placeholder
@@ -122,16 +148,19 @@ class Gameplay
     @bet=gets.chomp
     gamedeck.shuf
     #First Stage--Both Players get cards
-    player1.get_card(gamedeck.deal_card)
+    2.times {player1.get_card(gamedeck.deal_card)}
+    2.times {dealer.get_card(gamedeck.deal_card)}
+    puts "Your cards and total are:"
     puts player1.player_cards
+    binding.pry
+    puts player1.get_total(player_cards)
+
+    puts "The dealer's cards are"
+    puts dealer.player_cards
     
-#     @dealer.get_card
-#     @player1.get_card
-#     @dealer.get_card
 
-#     puts "You are showing the following cards: #{@player1.player_cards}"
 
-#     puts "The dealer is showing the following cards #{"@dealer.player_cards}"
+
 
 #     if @player1.player_cards.blackjack? && @dealer.player_cards.blackjack?
 #       puts "You and the dealer both got Blackjack--it's a tie!"
@@ -160,64 +189,19 @@ end
 
 Gameplay.new.play
 
-#_______________________________________________________________________________________
-# class Card #What is a real life card?
-#   attr_accessor :suit,:value
+#LECTURE NOTES
 
-#   def initialize(s,v)
-#     @suit=s
-#     @value=v
+# Tips for OOP Blackjack
+# 1. Have detailed requirements or specifications in writing
+# 2. Extract major nouns > probably will map to classes--Player, card, deck, dealer
+# 3. Extract major verbs > probably will map to instance methods
+# 4. Group instance methods into classes
+# 5. class variables and methods
+# 6. compare with procedural
 
-#   def to_s
-#     "This is the card! #{suit},#{value}"
-#   end
-    
-#   end
+#Benefits of OOP
+#1 Abstraction: 
+#2 Encapsulation: It encapsulates certain behaviors 
 
-# end
-
-# class Deck
-#   attr_accessor :cards
-#   def initialize(num_decks)
-#     @cards=[]
-#     ['H','D','S','C'].each do |suit|
-#       ['2','3','4','5','6','7','8','9','10','J','Q','K','A'].each do |face_value|
-#         @cards << Card.new(suit, face_value)
-#       end
-#     end
-#   scramble!
-# end
-
-# def scramble
-#   cards.shuffle!
-
-# def deal
-#   cards.pop
-# end
-
-# class Player
-
-# end
-
-# class Dealer
-
-# end
-
-# class Blackjack
-#   attr_accessor :player, :dealer, :deck
-#   def initialize
-#     @player=Player.net("Bob")
-#     @dealer=Dealer.new
-#     @deck=Deck.new
-#   end
-
-#   def run #within these, you 
-#     deal_cards
-#     show_flow
-#     players.each do |player|
-#       player_turn(player)
-#     player_turn
-#     dealer_turn
-#     who_won?
-#   end
-# end
+#Priority # 1 When you look at Rails code, understand that it's Ruby powering the Rails magic.
+#Keep in mind--you don't vf
