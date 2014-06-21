@@ -15,15 +15,29 @@ module Carding
     end
   end
 
-  def get_total(cards_array)
+  def get_total
     #sample card arr=[["H","3"],["C","Q"]]
     hand_total=0
     #Draw out second elements in the nested array
-    cards_array.collect! {|ind|ind[1]}
+
+    face_values=player_cards.map{|card|card.kind} #THIS IS THE PROBLEM IN YOUR CODE
+    #THE CREATION OF THE FACE_VALUES VARIABLE AND GETTING IT INTO THE PROPER FORMAT.
+    #THE CODE CURRENTLY SITTING HERE IS CREATING A NEW ARRAY FROM THE PLAYER CARDS 
+    #BASED ON THE KIND, IT'S UNCLEAR WHY MY METHOD DID NOT WORK.  THIS BEGS THE QUESTION
+    #IF THE PROGRAM IS STRUCTURED IN THE WAY I DID, WHY DID IT NOT PASS IT IN?  MY SUSPICION
+    #IS THAT THE PROCESSING IS TAKING PLACE IN AN ALTOGETHER DIFFERENT WAY.  IN THE SOLUTION
+    #THE SOLUTION, IT SEEMS TO BE ITERATING THROUGH INDIVIDUAL CARDS AND CREATING THE
+    #FACE VALUES ARRAY AS IF THE CARD IS THE PRIMARY OBJECT AS OPPOSED TO A COLLECTION
+    #OF CARDS.  I THINK THIS IS THE KEY TAKEAWAY.  I THINK THE KEY TAKEAWAY IS THAT
+    #WHEN ASKING IRB FOR INFORMATION ON AN ACTUAL DATABASE OBJECT, DON'T ASSUME IT
+    #EXISTS IN THE DATA STRUCTURE YOU WOULD IMAGINE IT TO BE AGGREGATED IN, CONCEPTUALIZE
+    #IT AS IT RETAINING THE SAME INSTANCE VARIABLES IT WAS CREATED WITH.
+
+    #binding.pry
     #Perform ace count
-    ace_count=cards_array.select{|a|a=="A"}.size
+    ace_count=face_values.select{|a|a=="A"}.size
     #Iterate through cards
-    cards_array.each do |x|
+    face_values.each do |x|
       if x=="J"|| x=="Q"||x=="K"
         hand_total+=10
       elsif x=="A"
@@ -44,7 +58,7 @@ end
 
 class Player
   include Carding
-  attr_accessor :player_cards
+  attr_accessor :player_cards,:player_name
   def initialize(player,bank)
     @player_name=player
     @bank=bank
@@ -75,6 +89,17 @@ class Card
   def pretty_output
     puts "The card is #{kind} of #{suit}"
   end
+
+  def draw(card)
+    combined=card.join
+    puts "------"
+    puts "| "+"#{combined}""|"
+    puts "|    |"
+    puts "|    |"
+    puts "------"
+  end
+
+
 
   def to_s 
     pretty_output
@@ -117,11 +142,6 @@ class Deck
   end
 end
 
-test_deck=Deck.new
-#binding.pry
-# puts test_deck.full_deck
-
-
 class Gameplay
   attr_accessor :gamedeck,:player1,:dealer,:bet
   def initialize
@@ -131,20 +151,38 @@ class Gameplay
     @bet=0
   end
 
-
-#   def hand_total_bust_check
-#     #placeholder
-#     #check for bust
+#   def bust_check(player)
+#     if player.get_total(player1.player_cards) >21
+#       true
+#     else
+#       false
+#     end
 #   end
 
-#   def blackjack?()
-#     hand_total=
-#   end
+
+#   # def players_turn(player)
+#   # while bust_check(player.get_total(player.player_cards))!=true
+#   #   puts "Would you like to hit or stay?  1) hit or 2) stay?"
+#   #   choice=gets.chomp
+#   #   if choice=="1"
+#   #     puts "You hit"
+#   #     sleep(2)
+#   #     draw_card(deck,player1_cards)
+#   #     puts "You now have the following cards: #{player1_cards.keys}"
+#   #     if bust_check(player1_cards)==true
+#   #       puts "{player.name} busted"
+#   #       exit
+#   #     end
+#   #   else
+#   #     puts "You stayed"
+#   #     break
+#   # end
 
 
   def play
     puts "Welcome to the Blackjack Table."
     puts "How much would you like to bet?"
+    @current_player=player1
     @bet=gets.chomp
     gamedeck.shuf
     #First Stage--Both Players get cards
@@ -152,11 +190,56 @@ class Gameplay
     2.times {dealer.get_card(gamedeck.deal_card)}
     puts "Your cards and total are:"
     puts player1.player_cards
-    binding.pry
-    puts player1.get_total(player_cards)
-
-    puts "The dealer's cards are"
+    puts "____________"
+    puts "The dealer cards are:"
     puts dealer.player_cards
+    puts "The player's total is"
+    puts player1.get_total
+    puts "The dealer's total is"
+    puts dealer.get_total
+  end
+
+# # #Blackjack Check
+# #     if player1.get_total(player1.player_cards)==21
+# #       puts "#{player.name} wins with Blackjack!"
+# #     end
+# #     if dealer.get_total(dealer.player_cards)==21
+# #       puts "#{dealer.name} wins with Blackjack"
+# #     end
+#   # end
+
+end
+
+#Player's Turn
+  # players_turn(current_player)
+
+Gameplay.new.play
+
+
+
+
+    
+
+
+
+    #The reason why it appears you don't need a variable here is that when we're
+    #runnign the get_totals function, it assumes we are already dealing with the 
+    #instance variables for player1, and thus there's not really a need to pass
+    #in a new parameter.  What was successful about this problem-solving
+    #exercise? Persistence, using pry to try and draw out as much detail
+    #as possible while debugging the problem.  It seems like it's easy to forget
+    #the card is kind of like the fundamental unit.
+
+    
+
+
+
+
+    # binding.pry
+    # puts player1.get_total(player_cards)
+
+    # puts "The dealer's cards are"
+    # puts dealer.player_cards
     
 
 
@@ -184,10 +267,7 @@ class Gameplay
 #     #Third Stage--Dealer draws till win or bust
 #   end
 #   exit
-  end
-end
 
-Gameplay.new.play
 
 #LECTURE NOTES
 
