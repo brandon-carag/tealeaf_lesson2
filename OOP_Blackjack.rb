@@ -99,13 +99,12 @@ class Player
   end
 end
 
-
-
+#===========================================================================
 class Dealer
   include Carding
-  attr_accessor :player_cards
+  attr_accessor :player_cards,:player_name
   def initialize(bank)
-    @name="Dealer"
+    @player_name="Dealer"
     @bank=1000000
     @player_cards=[]
   end
@@ -199,37 +198,37 @@ class Gameplay
   def player_turn(player)
     while bust_check(player) !=true
       puts "Would you like to hit or stay?  1) hit or 2) stay?"
-      
       choice=gets.chomp
+
       if choice=="1"
         player.get_card(gamedeck.deal_card)
         puts "You hit.  Your new cards are:"
-        puts player.player_cards
+        puts player.show_player_cards
         puts "Your new total is:"
         puts player.get_total
-        
       elsif choice=="2"
         puts "You stayed" 
         break
       else
         puts "You entered an invalid choice"
       end
-    end
 
-#   # while bust_check(player.get_total(player.player_cards))!=true
-#   #   puts "Would you like to hit or stay?  1) hit or 2) stay?"
-#   #   choice=gets.chomp
-#   #   if choice=="1"
-#   #     puts "You hit"
-#   #     draw_card(deck,player1_cards)
-#   #     puts "You now have the following cards: #{player1_cards.keys}"
-#   #     if bust_check(player1_cards)==true
-#   #       puts "{player.name} busted"
-#   #       exit
-#   #     end
-#   #   else
-#   #     puts "You stayed"
-#   #     break
+    end
+  end
+
+  def dealer_turn
+    while dealer.get_total<=17 || dealer.get_total<player1.get_total
+      puts "It's now the dealer's turn, and he is drawing more cards..."
+      dealer.get_card(gamedeck.deal_card)
+      puts "The dealer now holds:"
+      dealer.show_player_cards
+
+      if bust_check(dealer)==true
+      puts "The dealer busted and you win!"
+      elsif dealer.get_total>player1.get_total
+      puts "The dealer won and you lost.  Would you like to play again?"
+      end
+    end
   end
 
 #===========================================================================
@@ -242,20 +241,16 @@ class Gameplay
     #First Stage--Both Players get cards
     2.times {player1.get_card(gamedeck.deal_card)}
     puts "Your cards are:"
-    puts player1.show_player_cards #this is a test to remove
-    puts player1.player_cards
+    player1.show_player_cards #this is a test to remove
     puts "The player's total is"
     puts player1.get_total
-    puts "____________"
     2.times {dealer.get_card(gamedeck.deal_card)}
     puts "The dealer cards are:"
-    puts dealer.player_cards
+    dealer.show_player_cards
     puts "The dealer's total is"
     puts dealer.get_total
   
-
-#Blackjack Check
-    # binding.pry
+    #Blackjack Check
     if player1.blackjack? && dealer.blackjack?
       puts "It's a tie!"
     elsif player1.blackjack? 
@@ -263,12 +258,10 @@ class Gameplay
     elsif dealer.blackjack?
       puts "#{dealer.name} wins with Blackjack"
     end
-    puts "No one got an initial blackjack."
+    puts "No one got blackjack on the first deal."
 
-  #Player_Turn
     player_turn(player1)
-  #Dealer_Turn
-
+    dealer_turn
   end
 end
 
