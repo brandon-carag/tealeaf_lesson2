@@ -46,7 +46,6 @@ module Carding
     #EXISTS IN THE DATA STRUCTURE YOU WOULD IMAGINE IT TO BE AGGREGATED IN, CONCEPTUALIZE
     #IT AS IT RETAINING THE SAME INSTANCE VARIABLES IT WAS CREATED WITH.
 
-    #binding.pry
     #Perform ace count
     ace_count=face_values.select{|a|a=="A"}.size
     #Iterate through cards
@@ -65,7 +64,28 @@ module Carding
       hand_total-=ace_count*10
     end
     hand_total
+  end
+
+  # def show_player_cards
+  #   test=player_cards.map{|card|card.kind+card.suit}
+  #   puts test
+  # end
+
+
+  def show_player_cards
+    player_cards.map do|card|
+    puts "------"
+      if card.kind.to_s.length>=2
+      puts "| "+"#{card.kind}#{card.suit}"+"|"
+      else
+      puts "| "+"#{card.kind}#{card.suit}"+" |"
+      end
+    puts "|    |"
+    puts "|    |"
+    puts "------"
     end
+  end
+
 end
 
 #===========================================================================
@@ -79,8 +99,7 @@ class Player
   end
 end
 
-  def show_player_cards
-  end
+
 
 class Dealer
   include Carding
@@ -223,7 +242,7 @@ class Gameplay
     #First Stage--Both Players get cards
     2.times {player1.get_card(gamedeck.deal_card)}
     puts "Your cards are:"
-    binding.pry
+    puts player1.show_player_cards #this is a test to remove
     puts player1.player_cards
     puts "The player's total is"
     puts player1.get_total
