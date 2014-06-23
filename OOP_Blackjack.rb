@@ -1,6 +1,9 @@
 require "rubygems"
 require "pry"
 
+
+
+#===========================================================================
 module Carding
   def get_card(card)
     player_cards << card 
@@ -9,8 +12,8 @@ module Carding
 
 
   def blackjack?
-    binding.pry
-    if player_cards.get_total==21
+    # binding.pry
+    if get_total==21
       true
     else
       false
@@ -65,7 +68,7 @@ module Carding
     end
 end
 
-
+#===========================================================================
 class Player
   include Carding
   attr_accessor :player_cards,:player_name
@@ -75,6 +78,9 @@ class Player
     @player_cards=[]
   end
 end
+
+  def show_player_cards
+  end
 
 class Dealer
   include Carding
@@ -86,7 +92,7 @@ class Dealer
   end
 end
 
-
+#===========================================================================
 class Card
   attr_reader :suit,:kind
 #Doesn't seem like there should be an initialized card
@@ -97,13 +103,13 @@ class Card
   end
 
   def pretty_output
-    puts "The card is #{kind} of #{suit}"
+    # puts "The card is #{kind} of #{suit}"
+    draw
   end
 
-  def draw(card)
-    combined=card.join
+  def draw
     puts "------"
-    puts "| "+"#{combined}""|"
+    puts "| "+"#{kind}#{suit}"+" |"
     puts "|    |"
     puts "|    |"
     puts "------"
@@ -125,7 +131,7 @@ class Card
   end
 end
 
-
+#===========================================================================
 class Deck
   attr_accessor :full_deck
   def initialize
@@ -152,6 +158,7 @@ class Deck
   end
 end
 
+#===========================================================================
 class Gameplay
   attr_accessor :gamedeck,:player1,:dealer,:bet
   def initialize
@@ -161,22 +168,40 @@ class Gameplay
     @bet=0
   end
 
-#   def bust_check(player)
-#     if player.get_total(player1.player_cards) >21
-#       true
-#     else
-#       false
-#     end
-#   end
+  def bust_check(player)
+    if player.get_total >21
+      puts "#{player.player_name} busted!  Game is over."
+      true
+    else
+      false
+    end
+  end
 
+  def player_turn(player)
+    while bust_check(player) !=true
+      puts "Would you like to hit or stay?  1) hit or 2) stay?"
+      
+      choice=gets.chomp
+      if choice=="1"
+        player.get_card(gamedeck.deal_card)
+        puts "You hit.  Your new cards are:"
+        puts player.player_cards
+        puts "Your new total is:"
+        puts player.get_total
+        
+      elsif choice=="2"
+        puts "You stayed" 
+        break
+      else
+        puts "You entered an invalid choice"
+      end
+    end
 
-#   # def players_turn(player)
 #   # while bust_check(player.get_total(player.player_cards))!=true
 #   #   puts "Would you like to hit or stay?  1) hit or 2) stay?"
 #   #   choice=gets.chomp
 #   #   if choice=="1"
 #   #     puts "You hit"
-#   #     sleep(2)
 #   #     draw_card(deck,player1_cards)
 #   #     puts "You now have the following cards: #{player1_cards.keys}"
 #   #     if bust_check(player1_cards)==true
@@ -186,9 +211,9 @@ class Gameplay
 #   #   else
 #   #     puts "You stayed"
 #   #     break
-#   # end
+  end
 
-
+#===========================================================================
   def play
     puts "Welcome to the Blackjack Table."
     puts "How much would you like to bet?"
@@ -197,34 +222,39 @@ class Gameplay
     gamedeck.shuf
     #First Stage--Both Players get cards
     2.times {player1.get_card(gamedeck.deal_card)}
-    2.times {dealer.get_card(gamedeck.deal_card)}
-    puts "Your cards and total are:"
+    puts "Your cards are:"
+    binding.pry
     puts player1.player_cards
-    puts "____________"
-    puts "The dealer cards are:"
-    puts dealer.player_cards
     puts "The player's total is"
     puts player1.get_total
+    puts "____________"
+    2.times {dealer.get_card(gamedeck.deal_card)}
+    puts "The dealer cards are:"
+    puts dealer.player_cards
     puts "The dealer's total is"
     puts dealer.get_total
   
 
 #Blackjack Check
     # binding.pry
-    if player1.blackjack?
+    if player1.blackjack? && dealer.blackjack?
+      puts "It's a tie!"
+    elsif player1.blackjack? 
       puts "#{player.name} wins with Blackjack!"
-    end
-    if dealer.blackjack?
+    elsif dealer.blackjack?
       puts "#{dealer.name} wins with Blackjack"
     end
-  end
+    puts "No one got an initial blackjack."
 
+  #Player_Turn
+    player_turn(player1)
+  #Dealer_Turn
+
+  end
 end
 
 
-#Player's Turn
-  # players_turn(current_player)
-
+#===========================================================================
 Gameplay.new.play
 
 
