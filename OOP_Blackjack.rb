@@ -7,8 +7,18 @@ module Carding
     # My original code; @player_cards << Deck.deal_card.  Why doesn't this work?
   end
 
+
+  def blackjack?
+    binding.pry
+    if player_cards.get_total==21
+      true
+    else
+      false
+    end
+  end
+
   def bust?(hand)
-    if hand.hand_total>21
+    if player.get_total>21
       true
     else
       false
@@ -197,18 +207,20 @@ class Gameplay
     puts player1.get_total
     puts "The dealer's total is"
     puts dealer.get_total
+  
+
+#Blackjack Check
+    # binding.pry
+    if player1.blackjack?
+      puts "#{player.name} wins with Blackjack!"
+    end
+    if dealer.blackjack?
+      puts "#{dealer.name} wins with Blackjack"
+    end
   end
 
-# # #Blackjack Check
-# #     if player1.get_total(player1.player_cards)==21
-# #       puts "#{player.name} wins with Blackjack!"
-# #     end
-# #     if dealer.get_total(dealer.player_cards)==21
-# #       puts "#{dealer.name} wins with Blackjack"
-# #     end
-#   # end
-
 end
+
 
 #Player's Turn
   # players_turn(current_player)
