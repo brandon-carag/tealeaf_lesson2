@@ -1,10 +1,9 @@
 require "rubygems"
 require "pry"
 
-
-
 #===========================================================================
 module Carding
+  attr_accessor :player_cards,:player_name
   def get_card(card)
     player_cards << card 
     # My original code; @player_cards << Deck.deal_card.  Why doesn't this work?
@@ -12,7 +11,6 @@ module Carding
 
 
   def blackjack?
-    # binding.pry
     if get_total==21
       true
     else
@@ -29,7 +27,7 @@ module Carding
   end
 
   def get_total
-    #sample card arr=[["H","3"],["C","Q"]]
+    #sample card array=[["H","3"],["C","Q"]]
     hand_total=0
     #Draw out second elements in the nested array
 
@@ -48,6 +46,7 @@ module Carding
 
     #Perform ace count
     ace_count=face_values.select{|a|a=="A"}.size
+
     #Iterate through cards
     face_values.each do |x|
       if x=="J"|| x=="Q"||x=="K"
@@ -65,11 +64,6 @@ module Carding
     end
     hand_total
   end
-
-  # def show_player_cards
-  #   test=player_cards.map{|card|card.kind+card.suit}
-  #   puts test
-  # end
 
 
   def show_player_cards
@@ -91,7 +85,6 @@ end
 #===========================================================================
 class Player
   include Carding
-  attr_accessor :player_cards,:player_name
   def initialize(player,bank)
     @player_name=player
     @bank=bank
@@ -102,7 +95,6 @@ end
 #===========================================================================
 class Dealer
   include Carding
-  attr_accessor :player_cards,:player_name
   def initialize(bank)
     @player_name="Dealer"
     @bank=1000000
@@ -120,8 +112,8 @@ class Card
     @kind=kind
   end
 
-  def pretty_output
-    # puts "The card is #{kind} of #{suit}"
+  def show_card
+    puts "The card is #{kind} of #{suit}"
     draw
   end
 
@@ -133,20 +125,14 @@ class Card
     puts "------"
   end
 
-
-
-  def to_s 
-    pretty_output
-  end
-
-  def find_suit
-    case suit
-      when'H' then "Hearts"
-      when'D' then "Diamonds"
-      when'S' then "Spades"
-      when'C' then "Clubs"
-    end
-  end
+  # def find_suit
+  #   case suit
+  #     when'H' then "Hearts"
+  #     when'D' then "Diamonds"
+  #     when'S' then "Spades"
+  #     when'C' then "Clubs"
+  #   end
+  # end
 end
 
 #===========================================================================
@@ -188,10 +174,23 @@ class Gameplay
 
   def bust_check(player)
     if player.get_total >21
-      puts "#{player.player_name} busted!  Game is over."
+      puts "#{player.player_name} busted!"
+      gameover
       true
     else
       false
+    end
+  end
+
+  def gameover
+    puts "The game is over.  Would you like to play again? 1) yes 2) no"
+    response=gets.chomp
+    if response=="1"
+      Gameplay.new.play
+    elsif response=="2"
+      exit
+    else
+      "You entered an invalid option"
     end
   end
 
@@ -202,10 +201,8 @@ class Gameplay
 
       if choice=="1"
         player.get_card(gamedeck.deal_card)
-        puts "You hit.  Your new cards are:"
         puts player.show_player_cards
-        puts "Your new total is:"
-        puts player.get_total
+        puts "You hit.  Your new cards are shown above.  Your new total is #{player.get_total}"
       elsif choice=="2"
         puts "You stayed" 
         break
@@ -220,46 +217,56 @@ class Gameplay
     while dealer.get_total<=17 || dealer.get_total<player1.get_total
       puts "It's now the dealer's turn, and he is drawing more cards..."
       dealer.get_card(gamedeck.deal_card)
-      puts "The dealer now holds:"
       dealer.show_player_cards
+      puts "The dealer now holds the cards above.  His total is #{dealer.get_total}"
+      sleep(2)
 
       if bust_check(dealer)==true
-      puts "The dealer busted and you win!"
+        puts "The dealer busted and you win!"
+        gameover
+      elsif dealer.get_total>player1.get_total 
+        puts "It's a tie!  Your card total matched with the dealers."
+        gameover        
       elsif dealer.get_total>player1.get_total
-      puts "The dealer won and you lost.  Would you like to play again?"
+        puts "The dealer won and you lost."
+        gameover
       end
     end
   end
 
+def deal_first_hand
+  
+end
+
+
+
 #===========================================================================
   def play
-    puts "Welcome to the Blackjack Table."
-    puts "How much would you like to bet?"
     @current_player=player1
-    @bet=gets.chomp
     gamedeck.shuf
-    #First Stage--Both Players get cards
+    puts "Welcome to the Blackjack Table.  You have #{}How much would you like to bet?"
+
+    @bet=gets.chomp
+    
+    #Both Players dealt initial cards
     2.times {player1.get_card(gamedeck.deal_card)}
-    puts "Your cards are:"
-    player1.show_player_cards #this is a test to remove
-    puts "The player's total is"
-    puts player1.get_total
+    player1.show_player_cards 
+    puts "The player's cards are shown above.  The player's total is #{player1.get_total}"
     2.times {dealer.get_card(gamedeck.deal_card)}
-    puts "The dealer cards are:"
     dealer.show_player_cards
-    puts "The dealer's total is"
-    puts dealer.get_total
+    puts "The dealer's cards are shown above.  The dealer's total is #{dealer.get_total}"
   
     #Blackjack Check
     if player1.blackjack? && dealer.blackjack?
       puts "It's a tie!"
     elsif player1.blackjack? 
-      puts "#{player.name} wins with Blackjack!"
+      puts "#{player1.player_name} wins with Blackjack!"
     elsif dealer.blackjack?
-      puts "#{dealer.name} wins with Blackjack"
+      puts "#{dealer.player_name} wins with Blackjack"
     end
     puts "No one got blackjack on the first deal."
 
+    #Player and Dealer's Turns
     player_turn(player1)
     dealer_turn
   end
