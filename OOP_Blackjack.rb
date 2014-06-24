@@ -31,16 +31,16 @@ module Carding
     hand_total=0
     #Draw out second elements in the nested array
 
-    face_values=player_cards.map{|card|card.kind} #THIS IS THE PROBLEM IN YOUR CODE
+    face_values=player_cards.map{|card|card.kind} #NOTE TO SELF: THIS WAS THE PROBLEM IN YOUR CODE
     #THE CREATION OF THE FACE_VALUES VARIABLE AND GETTING IT INTO THE PROPER FORMAT.
     #THE CODE CURRENTLY SITTING HERE IS CREATING A NEW ARRAY FROM THE PLAYER CARDS 
     #BASED ON THE KIND, IT'S UNCLEAR WHY MY METHOD DID NOT WORK.  THIS BEGS THE QUESTION
     #IF THE PROGRAM IS STRUCTURED IN THE WAY I DID, WHY DID IT NOT PASS IT IN?  MY SUSPICION
-    #IS THAT THE PROCESSING IS TAKING PLACE IN AN ALTOGETHER DIFFERENT WAY.  IN THE SOLUTION
-    #THE SOLUTION, IT SEEMS TO BE ITERATING THROUGH INDIVIDUAL CARDS AND CREATING THE
+    #IS THAT THE PROCESSING IS TAKING PLACE IN AN ALTOGETHER DIFFERENT WAY.  IN THE SOLUTION, 
+    #IT SEEMS TO BE ITERATING THROUGH INDIVIDUAL CARDS AND CREATING THE
     #FACE VALUES ARRAY AS IF THE CARD IS THE PRIMARY OBJECT AS OPPOSED TO A COLLECTION
     #OF CARDS.  I THINK THIS IS THE KEY TAKEAWAY.  I THINK THE KEY TAKEAWAY IS THAT
-    #WHEN ASKING IRB FOR INFORMATION ON AN ACTUAL DATABASE OBJECT, DON'T ASSUME IT
+    #WHEN ASKING IRB FOR INFORMATION ON AN ACTUAL OBJECT, DON'T ASSUME IT
     #EXISTS IN THE DATA STRUCTURE YOU WOULD IMAGINE IT TO BE AGGREGATED IN, CONCEPTUALIZE
     #IT AS IT RETAINING THE SAME INSTANCE VARIABLES IT WAS CREATED WITH.
 
@@ -194,6 +194,27 @@ class Gameplay
     end
   end
 
+  def deal_first_hand
+      2.times {player1.get_card(gamedeck.deal_card)}
+      player1.show_player_cards 
+      puts "#{player1.player_name}'s cards are shown above.  The total is #{player1.get_total}"
+      2.times {dealer.get_card(gamedeck.deal_card)}
+      dealer.show_player_cards
+      puts "The dealer's cards are shown above.  The dealer's total is #{dealer.get_total}"
+        #Blackjack Check
+      if player1.blackjack? && dealer.blackjack?
+        puts "It's a tie!"
+        gameover
+      elsif player1.blackjack?
+        puts "#{player1.player_name} wins with Blackjack!"
+        gameover
+      elsif dealer.blackjack?
+        puts "#{dealer.player_name} wins with Blackjack"
+        gameover
+      end
+        puts "\nNo one got blackjack on the first deal."
+  end
+
   def player_turn(player)
     while bust_check(player) !=true
       puts "Would you like to hit or stay?  1) hit or 2) stay?"
@@ -214,6 +235,10 @@ class Gameplay
   end
 
   def dealer_turn
+    if dealer.get_total>player1.get_total
+      puts "You lose.  You should have hit"
+      gameover
+    end
     while dealer.get_total<=17 || dealer.get_total<player1.get_total
       puts "It's now the dealer's turn, and he is drawing more cards..."
       dealer.get_card(gamedeck.deal_card)
@@ -234,51 +259,40 @@ class Gameplay
     end
   end
 
-def deal_first_hand
-  
-end
+
 
 
 
 #===========================================================================
   def play
-    @current_player=player1
     gamedeck.shuf
-    puts "Welcome to the Blackjack Table.  You have #{}How much would you like to bet?"
-
+    puts "Welcome to the Blackjack Table.  How much would you like to bet?"
     @bet=gets.chomp
     
-    #Both Players dealt initial cards
-    2.times {player1.get_card(gamedeck.deal_card)}
-    player1.show_player_cards 
-    puts "The player's cards are shown above.  The player's total is #{player1.get_total}"
-    2.times {dealer.get_card(gamedeck.deal_card)}
-    dealer.show_player_cards
-    puts "The dealer's cards are shown above.  The dealer's total is #{dealer.get_total}"
-  
-    #Blackjack Check
-    if player1.blackjack? && dealer.blackjack?
-      puts "It's a tie!"
-    elsif player1.blackjack? 
-      puts "#{player1.player_name} wins with Blackjack!"
-    elsif dealer.blackjack?
-      puts "#{dealer.player_name} wins with Blackjack"
-    end
-    puts "No one got blackjack on the first deal."
 
-    #Player and Dealer's Turns
+    deal_first_hand
     player_turn(player1)
     dealer_turn
   end
 end
 
-
 #===========================================================================
+#Call the first game
 Gameplay.new.play
 
+#===========================================================================
+#OOP LECTURE NOTES
 
-
-
+    # #Both Players dealt initial cards
+    # 2.times {player1.get_card(gamedeck.deal_card)}
+    # player1.show_player_cards 
+    # puts "The player's cards are shown above.  The player's total is #{player1.get_total}"
+    # 2.times {dealer.get_card(gamedeck.deal_card)}
+    # dealer.show_player_cards
+    # puts "The dealer's cards are shown above.  The dealer's total is #{dealer.get_total}"
+  
+    
+    #Player and Dealer's Turns
     
 
 
